@@ -1,4 +1,4 @@
-// Пазл 1: The descent. Корабль, уничтожающий горы
+// Пазл 1: The descent. Корабль, уничтожающий горы.
 #include <iostream>
 #include <string>
 #include <vector>
