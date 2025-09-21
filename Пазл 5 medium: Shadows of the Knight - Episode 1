@@ -1,0 +1,57 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+/**
+ * Auto-generated code below aims at helping you parse
+ * the standard input according to the problem statement.
+ **/
+
+int main()
+{
+    int w; // width of the building.
+    int h; // height of the building.
+    cin >> w >> h; cin.ignore();
+    int n; // maximum number of turns before game over.
+    cin >> n; cin.ignore();
+    int x0;
+    int y0;
+    cin >> x0 >> y0; cin.ignore();
+    
+    // Границы поиска
+    int x_min = 0, x_max = w - 1;
+    int y_min = 0, y_max = h - 1;
+    
+
+    // game loop
+    while (1) {
+        string bomb_dir; // the direction of the bombs from batman's current location (U, UR, R, DR, D, DL, L or UL)
+        cin >> bomb_dir; cin.ignore();
+
+         // Если бомбы находятся выше - обновляем верхнюю границу
+        if (bomb_dir.find('U') != string::npos) {
+            y_max = y0 - 1;
+        }
+         // Если бомбы находятся ниже - обновляем нижнюю границу
+        if (bomb_dir.find('D') != string::npos) {
+            y_min = y0 + 1;
+        }
+        // Если бомбы находятся левее - обновляем левую границу
+        if (bomb_dir.find('L') != string::npos) {
+            x_max = x0 - 1;
+        }
+        // Если бомбы находятся правее - обновляем правую границу
+        if (bomb_dir.find('R') != string::npos) {
+            x_min = x0 + 1;
+        }
+
+        // Вычисляем новую позицию как середину текущего диапазона
+        x0 = (x_min + x_max) / 2;
+        y0 = (y_min + y_max) / 2;
+
+        cout << x0 << " " << y0 << endl; // Результат
+    }
+}
