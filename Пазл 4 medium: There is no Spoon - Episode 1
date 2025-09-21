@@ -1,0 +1,62 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+/**
+ * Don't let the machines win. You are humanity's last hope...
+ **/
+
+int main()
+{
+    int width; // количество клеток по оси X
+    cin >> width; cin.ignore();
+    int height; // количество клеток по оси Y
+    cin >> height; cin.ignore();
+    
+    // Создаем двумерный вектор для хранения сетки
+    vector<string> grid;
+    for (int i = 0; i < height; i++) {
+        string line;
+        getline(cin, line); // строка ширины width, каждый символ либо '0' либо '.'
+        grid.push_back(line);
+    }
+
+    // Обрабатываем каждую клетку сетки
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            // Если текущая клетка содержит узел ('0')
+            if (grid[y][x] == '0') {
+                // Координаты текущего узла
+                int x1 = x, y1 = y;
+                
+                // Поиск правого соседа
+                int x2 = -1, y2 = -1;
+                for (int rx = x + 1; rx < width; rx++) {
+                    if (grid[y][rx] == '0') {
+                        x2 = rx;
+                        y2 = y;
+                        break;
+                    }
+                }
+                
+                // Поиск нижнего соседа
+                int x3 = -1, y3 = -1;
+                for (int by = y + 1; by < height; by++) {
+                    if (grid[by][x] == '0') {
+                        x3 = x;
+                        y3 = by;
+                        break;
+                    }
+                }
+                
+                // Выводим координаты узла и его соседей
+                cout << x1 << " " << y1 << " " << x2 << " " << y2 << " " << x3 << " " << y3 << endl;
+            }
+        }
+    }
+
+    return 0;
+}
