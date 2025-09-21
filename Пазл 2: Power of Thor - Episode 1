@@ -1,0 +1,45 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int main()
+{
+    int light_x; // the X position of the light of power
+    int light_y; // the Y position of the light of power
+    int initial_tx; // Thor's starting X position
+    int initial_ty; // Thor's starting Y position
+    cin >> light_x >> light_y >> initial_tx >> initial_ty; cin.ignore();
+
+    int current_tx = initial_tx;
+    int current_ty = initial_ty;
+
+    while (1) {
+        int remaining_turns;
+        cin >> remaining_turns; cin.ignore();
+
+        string direction = "";
+        int diff_x = light_x - current_tx;
+        int diff_y = light_y - current_ty;
+
+        if (diff_y > 0) {
+            direction += "S";
+            current_ty++;
+        } else if (diff_y < 0) {
+            direction += "N";
+            current_ty--;
+        }
+
+        if (diff_x > 0) {
+            direction += "E";
+            current_tx++;
+        } else if (diff_x < 0) {
+            direction += "W";
+            current_tx--;
+        }
+
+        cout << direction << endl;
+    }
+}
