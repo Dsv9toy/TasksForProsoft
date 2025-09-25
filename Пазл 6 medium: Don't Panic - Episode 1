@@ -1,0 +1,77 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int main()
+{
+    int nbFloors; // количество этажей
+    int width; // ширина области
+    int nbRounds; // максимальное количество раундов
+    int exitFloor; // этаж, на котором находится выход
+    int exitPos; // позиция выхода на этаже
+    int nbTotalClones; // общее количество клонов
+    int nbAdditionalElevators; // не используется, всегда 0
+    int nbElevators; // количество лифтов
+    cin >> nbFloors >> width >> nbRounds >> exitFloor >> exitPos >> nbTotalClones >> nbAdditionalElevators >> nbElevators; cin.ignore();
+
+    // Вектор для хранения позиций лифтов на каждом этаже. Если лифта нет, значение -1.
+    vector<int> elevators(nbFloors, -1);
+
+    for (int i = 0; i < nbElevators; i++) {
+        int elevatorFloor; // этаж лифта
+        int elevatorPos; // позиция лифта на этаже
+        cin >> elevatorFloor >> elevatorPos; cin.ignore();
+        elevators[elevatorFloor] = elevatorPos;
+    }
+
+    // Игровой цикл
+    while (1) {
+        int cloneFloor; // этаж ведущего клона
+        int clonePos; // позиция ведущего клона
+        string direction; // направление движения клона: LEFT или RIGHT
+        cin >> cloneFloor >> clonePos >> direction; cin.ignore();
+
+        // Если нет ведущего клона, ждем
+        if (cloneFloor == -1) {
+            cout << "WAIT" << endl;
+            continue;
+        }
+
+        // Если клон на этаже с выходом
+        if (cloneFloor == exitFloor) {
+            // Проверяем, движется ли клон в сторону выхода
+            if (clonePos > exitPos && direction == "RIGHT") {
+                // Клон прошёл выход и движется вправо — блокируем для разворота
+                cout << "BLOCK" << endl;
+            } else if (clonePos < exitPos && direction == "LEFT") {
+                // Клон не дошёл до выхода и движется влево — блокируем для разворота
+                cout << "BLOCK" << endl;
+            } else {
+                // Клон движется правильно — ждем
+                cout << "WAIT" << endl;
+            }
+        } else {
+            // Клон не на этаже с выходом — направляем к лифту на этом этаже
+            int elevatorPos = elevators[cloneFloor];
+            if (elevatorPos != -1) {
+                // Проверяем, движется ли клон в сторону лифта
+                if (clonePos > elevatorPos && direction == "RIGHT") {
+                    // Клон прошёл лифт и движется вправо — блокируем
+                    cout << "BLOCK" << endl;
+                } else if (clonePos < elevatorPos && direction == "LEFT") {
+                    // Клон не дошёл до лифта и движется влево — блокируем
+                    cout << "BLOCK" << endl;
+                } else {
+                    // Клон движется правильно — ждем
+                    cout << "WAIT" << endl;
+                }
+            } else {
+                // На этаже нет лифта — ждем (клон не может подняться)
+                cout << "WAIT" << endl;
+            }
+        }
+    }
+}
