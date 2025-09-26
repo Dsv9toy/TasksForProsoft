@@ -1,0 +1,56 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+/**
+ * Auto-generated code below aims at helping you parse
+ * the standard input according to the problem statement.
+ **/
+
+int main()
+{
+    int l;
+    cin >> l; cin.ignore();
+    int h;
+    cin >> h; cin.ignore();
+    string t;
+    getline(cin, t);
+    
+    // Преобразуем текст в верхний регистр
+    transform(t.begin(), t.end(), t.begin(), ::toupper);
+    
+    vector<string> rows(h);
+    for (int i = 0; i < h; i++) {
+        string row;
+        getline(cin, row);
+        rows[i] = row;
+    }
+
+    // Обрабатываем каждую строку высоты
+    for (int i = 0; i < h; i++) {
+        string answer = "";
+        
+        // Для каждого символа в тексте
+        for (char c : t) {
+            // Определяем позицию символа в алфавите
+            int pos;
+            if (c >= 'A' && c <= 'Z') {
+                pos = c - 'A';
+            } else {
+                pos = 26; // ? для не-букв
+            }
+            
+            // Извлекаем соответствующую часть из ASCII строки
+            int start_index = pos * l;
+            answer += rows[i].substr(start_index, l);
+        }
+        
+        // Выводим строку
+        cout << answer << endl;
+    }
+
+    return 0;
+}
