@@ -1,0 +1,42 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int main()
+{
+    int n;
+    cin >> n; cin.ignore();
+    
+    // В начале считаем как будто потерь нет, определим переменную maxLoss как 0
+    int maxLoss = 0;
+    
+    if (n > 0) {
+        // Читаем первое значение и инициализируем им максимальную цену
+        int maxPrice;
+        cin >> maxPrice; cin.ignore();
+        
+        // Обрабатываем оставшиеся n-1 значений
+        for (int i = 1; i < n; i++) {
+            int currentPrice;
+            cin >> currentPrice; cin.ignore();
+            
+            if (currentPrice > maxPrice) {
+                // Если текущая цена больше максимальной, обновляем максимум
+                maxPrice = currentPrice;
+            } else {
+                // Вычисляем потерю от текущего максимума до текущей цены
+                int currentLoss = currentPrice - maxPrice;
+                
+                // Если текущая потеря больше максимальной (более отрицательная), обновляем
+                if (currentLoss < maxLoss) {
+                    maxLoss = currentLoss;
+                }
+            }
+        }
+    }
+    
+    cout << maxLoss << endl;
+}
