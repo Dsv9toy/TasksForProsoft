@@ -1,0 +1,98 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <queue>
+
+using namespace std;
+
+// функция для значения карты
+int getValue(const string& card) {
+    // Берем значение карты (все кроме последнего символа - масти)
+    string valueStr = card.substr(0, card.length() - 1);
+    
+    // Преобразуем буквенные значения в числовые
+    if (valueStr == "J") return 11;
+    if (valueStr == "Q") return 12;
+    if (valueStr == "K") return 13;
+    if (valueStr == "A") return 14;
+    
+    // Для числовых значений преобразуем строку в число. Для этого воспользуемся встроенной функцией string to integer (stoi)
+    return stoi(valueStr);
+}
+
+int main()
+{
+    int n; // the number of cards for player 1
+    cin >> n; cin.ignore();
+    
+    queue<string> player1, player2;
+    
+    for (int i = 0; i < n; i++) {
+        string cardp_1; // the n cards of player 1
+        cin >> cardp_1; cin.ignore();
+        player1.push(cardp_1);
+    }
+    int m; // the number of cards for player 2
+    cin >> m; cin.ignore();
+    for (int i = 0; i < m; i++) {
+        string cardp_2; // the m cards of player 2
+        cin >> cardp_2; cin.ignore();
+        player2.push(cardp_2);
+    }
+
+    // добавим переменную для подсчёта раундов, а также переменную pat - ничья.
+    int rounds = 0;
+    bool pat = false;
+    
+    while (!player1.empty() && !player2.empty() && !pat) {
+        rounds++;
+        vector<string> war1, war2;
+        bool battle = true;
+        
+        while (battle && !pat) {
+            // Проверяем, есть ли карты для боя
+            if (player1.empty() || player2.empty()) {
+                pat = true;
+                break;
+            }
+            
+            // Текущий бой
+            war1.push_back(player1.front()); player1.pop();
+            war2.push_back(player2.front()); player2.pop();
+            
+            int v1 = getValue(war1.back());
+            int v2 = getValue(war2.back());
+            
+            if (v1 != v2) {
+                battle = false;
+                // Победитель забирает все карты
+                auto& winner = (v1 > v2) ? player1 : player2;
+                for (auto& c : war1) winner.push(c);
+                for (auto& c : war2) winner.push(c);
+            } else {
+                // Война - проверяем, хватит ли карт для войны
+                if (player1.size() < 3 || player2.size() < 3) {
+                    pat = true;
+                    battle = false;
+                    break;
+                }
+                
+                // Добавляем по 3 карты рубашкой вниз
+                for (int i = 0; i < 3; i++) {
+                    war1.push_back(player1.front()); player1.pop();
+                    war2.push_back(player2.front()); player2.pop();
+                }
+            }
+        }
+    }
+
+    //вывод результата
+    if (pat || (player1.empty() && player2.empty())) {
+        cout << "PAT" << endl;
+    } else {
+        cout << (player2.empty() ? "1 " : "2 ") << rounds << endl;
+    }
+
+    return 0;
+}
