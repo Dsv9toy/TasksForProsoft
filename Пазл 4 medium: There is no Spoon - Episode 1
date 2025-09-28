@@ -5,10 +5,6 @@
 
 using namespace std;
 
-/**
- * Don't let the machines win. You are humanity's last hope...
- **/
-
 int main()
 {
     int width; // количество клеток по оси X
