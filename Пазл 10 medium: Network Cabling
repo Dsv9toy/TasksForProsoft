@@ -1,0 +1,51 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+/**
+ * Auto-generated code below aims at helping you parse
+ * the standard input according to the problem statement.
+ **/
+
+int main()
+{
+    int n;
+    cin >> n; cin.ignore();
+    
+    vector<long long> x_coords(n);
+    vector<long long> y_coords(n);
+    long long min_x = 1LL << 60;
+    long long max_x = -min_x;
+    
+    // узнаем координаты всех зданий
+    for (int i = 0; i < n; i++) {
+        long long x, y;
+        cin >> x >> y; cin.ignore();
+        x_coords[i] = x;
+        y_coords[i] = y;
+        
+        if (x < min_x) min_x = x;
+        if (x > max_x) max_x = x;
+    }
+    
+    // длина главного кабеля от самого западного до самого восточного здания
+    long long main_cable = max_x - min_x;
+    
+    // сортируем y-координаты для нахождения медианы тк медиана дает оптимальное положение главного кабеля по оси Y
+    sort(y_coords.begin(), y_coords.end());
+    long long median_y = y_coords[n / 2];
+    
+    // вычисление длины вертикальных кабелей
+    long long vertical_cables = 0;
+    for (int i = 0; i < n; i++) {
+        vertical_cables += abs(y_coords[i] - median_y);
+    }
+    
+    // В итоге получим суммарную длину кабелей, а затем выведем результат
+    long long total_length = main_cable + vertical_cables;
+    
+    cout << total_length << endl;
+}
