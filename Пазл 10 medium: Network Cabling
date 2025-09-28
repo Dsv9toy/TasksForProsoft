@@ -36,7 +36,7 @@ int main()
     
     // сортируем y-координаты для нахождения медианы тк медиана дает оптимальное положение главного кабеля по оси Y
     sort(y_coords.begin(), y_coords.end());
-    long long median_y = y_coords[n / 2];
+    int median_y = y_coords[n / 2];
     
     // вычисление длины вертикальных кабелей
     long long vertical_cables = 0;
