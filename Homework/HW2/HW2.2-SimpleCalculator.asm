@@ -5,7 +5,7 @@
 ;3 - Преобразование в строку и из числа и наоборот
 
 
-
+;--------------------------------------------------
 section .data
 EnterMessage1 db 'Простой калькулятор суммы', 10
 EnterMessage1Len equ $ - EnterMessage1
@@ -23,13 +23,14 @@ ResultMsg db 'Результат: ', 0
 ResultMsgLen equ $ - ResultMsg
 
 nextline1 db 10,0
-
+;--------------------------------------------------
 section .bss
 
 FirstNumBuff resb 20
 SecondNumBuff resb 20
 ResultBuff resb 40
 
+;-------------------------------------------------
 section .text
     global _start
 
@@ -77,11 +78,27 @@ _start:
     mov rdx, ResultMsgLen
     call PrintEnterMsg
 
-    mov rsi, ResultBuff
-    mov rdx, 40
+; Вычисляем длину результата прямо здесь
+    push rsi
+    push rdx
+
+ mov rsi, ResultBuff
+    mov rdx, 0
+.calcLen:
+    cmp byte [rsi + rdx], 0  ; ищем конец строки
+    je .printResult
+    inc rdx
+    jmp .calcLen
+.printResult:
+    call PrintEnterMsg     
+
+    pop rdx
+    pop rsi
+
+    ;выводим перевод строки
+    mov rsi, nextline
+    mov rdx, 1
     call PrintEnterMsg
-
-
 
     ;Выход из программы
     mov rax, 60  ; exit
@@ -107,21 +124,27 @@ ReadImputNumsFunc:
     push rax ; 
     push rdi
     push rsi
+    push rdx
 
     mov rax, 0 ; перевод в режим чтения
     mov rdi, 0 ; с экрана консоли
 
     syscall
 
-    ;заменяем символ новой строки на 0                       
+    ;заменяем символ новой строки на 0     
+ cmp rax, 0
+    je .done
     mov rdi, rsi
     add rdi, rax
-    dec rdi ; тк sys read добавляет символ новой строки, он нам не нужен
-    mov byte [rsi + rax -1], 0      ; заменяем символ новой строки на 0.
-
+    dec rdi                     ; переходим к последнему символу
+    cmp byte [rdi], 10          ; проверяем если это \n
+    jne .done
+    mov byte [rdi], 0           ; заменяем \n на 0
+.done:
+    pop rdx
     pop rsi
-    pop rdi   ; раскрываем стек обратно
-    pop rax   ; 
+    pop rdi
+    pop rax
 ret
 
 
@@ -172,7 +195,7 @@ ToStringFromIntFunc:
     jnz .Loopa   ; если да, продолжаем преобразование
 
     ;Копируем результат в начало буфера
-    mov rsi, rdi        ; rsi теперь указывает на начало числа в буфере
+    mov rax, rdi        ; rsi теперь указывает на начало числа в буфере
 
     pop rdx
     pop rbx
@@ -180,7 +203,6 @@ ret
 
 
 ResultSumFunc:
-    push rax
     push rdi
     push rsi
 
@@ -192,9 +214,20 @@ ResultSumFunc:
     mov rsi, ResultBuff ; буфер для результата
     call ToStringFromIntFunc
 
+;результат теперь в rax, копируем его в ResultBuff
+    mov rsi, rax        ;копируем указатель на результат
+    mov rdi, ResultBuff ;целевой буфер
+.copyLoop:
+    mov al, [rsi]       ;копируем байт
+    mov [rdi], al       ;сохраняем в буфер
+    test al, al         ;проверяем конец строки
+    jz .copyDone       ;если 0 - закончили
+    inc rsi             ;следующий источник данных
+    inc rdi             ;следующий приемник
+    jmp .copyLoop      ;продолжаем копирование
+.copyDone:
 
     pop rsi
     pop rdi
-    pop rax
 ret
 
