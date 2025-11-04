@@ -9,18 +9,20 @@
 section .data
 EnterMessage1 db 'Простой калькулятор суммы', 10
 EnterMessage1Len equ $ - EnterMessage1
-nextLine db 10,0 
+nextline db 10,0 
 
 MsgForNum1 db 'Введи первое число: ', 10
 MsgForNum1Len equ $ - MsgForNum1
-nextLine db 10,0 
+
 
 MsgForNum2 db 'Введи второе число: ', 10
 MsgForNum2Len equ $ - MsgForNum2
-nextLine db 10,0 
+
 
 ResultMsg db 'Результат: ', 0
 ResultMsgLen equ $ - ResultMsg
+
+nextline1 db 10,0
 
 section .bss
 
@@ -50,9 +52,8 @@ _start:
 ;преобразуем первое число в строку
     mov rsi, FirstNumBuff
     call ToIntFromStringFunc
-    mov r8, rax ; сохраним первое число в r8
-    
-    
+    mov r8, rax ; сохраним первое число в r8                  
+
     ;----------------------------------стадия записи второго числа--------------------------------------
     mov rsi, MsgForNum2 ; Подсказываем пользователю ввести второе число
     mov rdx, MsgForNum2Len
@@ -105,36 +106,95 @@ ret
 ReadImputNumsFunc:
     push rax ; 
     push rdi
+    push rsi
 
     mov rax, 0 ; перевод в режим чтения
     mov rdi, 0 ; с экрана консоли
-    ;заменяем символ новой строки на 0                         
+
+    syscall
+
+    ;заменяем символ новой строки на 0                       
     mov rdi, rsi
     add rdi, rax
-    dec rdi
-    mov byte [rdi], 0             
+    dec rdi ; тк sys read добавляет символ новой строки, он нам не нужен
+    mov byte [rsi + rax -1], 0      ; заменяем символ новой строки на 0.
 
+    pop rsi
     pop rdi   ; раскрываем стек обратно
     pop rax   ; 
 ret
 
+
+;точка перед меткой создает локальную метку, которая видна только внутри функции. Не возникнет конфликтов если вдруг очень много меток и случайно объявили ту же самую
 ToIntFromStringFunc:
-    ; Нужно реализовать преобразование строки в число
-    ; Пока заглушка - возвращает 5
-    mov rax, 5
+    xor rax, rax        ; обнуляем результат 
+    xor rcx, rcx        ; обнуляем счетчик, будем хранить текущий символ
+    mov rbx, 10         ; т.к мы будем работать с десятичными числами, то множитель должен быть 10. 
+
+.Looping:
+    mov cl, [rsi]       ; берем текущий символ из строки
+    cmp cl, 0           ; проверяем конец строки (нуль-терминатор)
+    je .done            ; je - jump if equal. если равно то переход 
+    cmp cl, '0'         ; проверяем валидность цифры
+    jb .done            ; jb - jump if below. переход если меньше. т.е если символ < '0' - не цифра
+    cmp cl, '9'
+    ja .done            ; ja - jump if above. переход если больше. т.е если символ > '9' - не цифра
+    
+    sub cl, '0'         ; преобразуем символ в цифру: '5' -> 5
+    imul rax, rbx       ; умножаем текущий результат на 10. imul - умножение 
+                        ; (сдвигаем разряды влево)
+    add rax, rcx        ; добавляем новую цифру к результату
+    inc rsi             ; переходим к следующему символу в строке
+    jmp .Looping   ; повторяем
+
+.done:
 ret
 
+
 ToStringFromIntFunc:
-   ; Нужно реализовать преобразование числа в строку  
-    ; Пока заглушка
+    push rbx
+    push rdx
+
+
+    mov rax, rdi      
+    mov rdi, rsi        ; буфер для результата
+    add rdi, 39         ; начинаем с конца буфера (39-й байт из 40)
+    mov byte [rdi], 0   ; ставим завершающий нуль в конец строки
+    mov rbx, 10         
+
+.Loopa:
+    dec rdi             ; двигаемся назад по буферу (т.е справа налево)
+    xor rdx, rdx        ; обнуляем rdx для деления
+    div rbx             ; div -беззнаковое деление. делим rax на 10: rax=частное, rdx=остаток
+    add dl, '0'         ; преобразуем цифру в символ
+    mov [rdi], dl       ; сохраняем символ в буфер
+    test rax, rax       ; проверяем, осталось ли что-то в частном
+    jnz .Loopa   ; если да, продолжаем преобразование
+
+    ;Копируем результат в начало буфера
+    mov rsi, rdi        ; rsi теперь указывает на начало числа в буфере
+
+    pop rdx
+    pop rbx
 ret
+
 
 ResultSumFunc:
     push rax
+    push rdi
+    push rsi
 
     mov rax, r8
     add rax, r9
 
+    ;преобразуем число обратно 
+    mov rdi, rax        ; число для преобразования
+    mov rsi, ResultBuff ; буфер для результата
+    call ToStringFromIntFunc
+
+
+    pop rsi
+    pop rdi
     pop rax
 ret
 
